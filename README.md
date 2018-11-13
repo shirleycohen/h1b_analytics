@@ -1,6 +1,6 @@
-#### Analyzing H-1B data with BigQuery, Beam, and Dataflow on GCP
+#### Analyzing H-1B data on GCP, using BigQuery, Apache Beam, and Dataflow
 #### 
 #### 
 #### 
 #### 
-###### Download Dataset: https://storage.googleapis.com/h1b-data/h1b_dataset.zip
+###### H-1B dataset used for analysis: https://storage.googleapis.com/h1b-data/h1b_dataset.zip
