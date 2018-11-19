@@ -83,7 +83,7 @@ opts = beam.pipeline.PipelineOptions(flags=[], **options)
 
 with beam.Pipeline('DirectRunner', options=opts) as p:
     
-    query_results = p | 'Read from BigQuery' >> beam.io.Read(beam.io.BigQuerySource(query='SELECT * FROM h1b_split.Employer WHERE employer_name != \'1\' ORDER BY employer_name limit 100'))
+    query_results = p | 'Read from BigQuery' >> beam.io.Read(beam.io.BigQuerySource(query='SELECT * FROM h1b_split.Employer ORDER BY employer_name limit 100'))
 
     # write PCollection to log file
     query_results | 'Write to File 1' >> WriteToText('query_results.txt')
