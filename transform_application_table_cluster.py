@@ -94,7 +94,7 @@ options = {
 }
 opts = beam.pipeline.PipelineOptions(flags=[], **options)
 
-with beam.Pipeline('DirectRunner', options=opts) as p:
+with beam.Pipeline('DataflowRunner', options=opts) as p:
     
     app_query_results = p | 'Read from BigQuery Application' >> beam.io.Read(beam.io.BigQuerySource(query='SELECT * FROM h1b_split.Application_Temp order by employer_name'))
     emp_query_results = p | 'Read from BigQuery Employer' >> beam.io.Read(beam.io.BigQuerySource(query='SELECT employer_id, employer_name, employer_city FROM h1b_split.Employer order by employer_name'))

@@ -1,4 +1,4 @@
-import logging, os
+import logging, os, datetime
 import apache_beam as beam
 from apache_beam.io import ReadFromText
 from apache_beam.io import WriteToText
@@ -41,7 +41,7 @@ class MakeBigQueryRecord(beam.DoFn):
   def process(self, element):
     key, record_values = element
     
-    record_list = list(record_values)
+    record_list = list(record_values) # '_UnwindowedValues' object must be cast to a list
     if len(record_list) == 0:
         return
     
@@ -77,7 +77,7 @@ PROJECT_ID = os.environ['PROJECT_ID']
 BUCKET = os.environ['BUCKET']
 DIR_PATH = BUCKET + '/output/' + datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S') + '/'
 
-# run pipeline on Dataflow 
+# Project ID is needed for BigQuery data source, even for local execution.
 options = {
     'runner': 'DataflowRunner',
     'job_name': 'transform-employer-table',
@@ -88,8 +88,10 @@ options = {
     'num_workers': 8
 }
 opts = beam.pipeline.PipelineOptions(flags=[], **options)
+
+with beam.Pipeline('DataflowRunner', options=opts) as p:
     
-    query_results = p | 'Read from BigQuery' >> beam.io.Read(beam.io.BigQuerySource(query='SELECT * FROM h1b_split.Employer ORDER BY employer_name limit 100'))
+    query_results = p | 'Read from BigQuery' >> beam.io.Read(beam.io.BigQuerySource(query='SELECT * FROM h1b_split.Employer ORDER BY employer_name'))
 
     # write PCollection to log file
     query_results | 'Write to File 1' >> WriteToText(DIR_PATH + 'output_query_results.txt')
@@ -98,7 +100,7 @@ opts = beam.pipeline.PipelineOptions(flags=[], **options)
     tuple_pcoll = query_results | 'Transform Employer Name' >> beam.ParDo(TransformEmployerName())
     
     # write PCollection to log file
-    tuple_pcoll | 'Write to File 2' >> WriteToText(DIR_PATH + 'output_pardo_employer_tuple.txt')
+    tuple_pcoll | 'Write to File 2' >> WriteToText('output_pardo_employer_tuple.txt')
     
     deduped_pcoll = tuple_pcoll | 'Dedup Employer Records' >> beam.GroupByKey()
     
