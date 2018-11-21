@@ -1,4 +1,4 @@
-import logging, os, datetime
+import logging, os
 import apache_beam as beam
 from apache_beam.io import ReadFromText
 from apache_beam.io import WriteToText
@@ -37,14 +37,15 @@ class TransformEmployerName(beam.DoFn):
     
     return [employer_tuple]
 
-class MakeRecord(beam.DoFn):
+class MakeBigQueryRecord(beam.DoFn):
   def process(self, element):
-    key, record_list = element
-    print('record_list: ' + str(record_list))
+    key, record_values = element
     
-    for record in record_list:
-        break
-
+    record_list = list(record_values)
+    if len(record_list) == 0:
+        return
+    
+    record = record_list[0]    
     if record.get('employer_address') == None:
         record.pop('employer_address')
     if record.get('employer_state') == None:
@@ -68,6 +69,8 @@ class MakeRecord(beam.DoFn):
     if record.get('willful_violator') == None:
         record.pop('willful_violator')
 
+    print('output record: ' + str(record) + '\n')
+
     return [record]
 
 PROJECT_ID = os.environ['PROJECT_ID']
@@ -85,18 +88,16 @@ options = {
     'num_workers': 8
 }
 opts = beam.pipeline.PipelineOptions(flags=[], **options)
-
-with beam.Pipeline(options=opts) as p:
     
-    query_results = p | 'Read from BigQuery' >> beam.io.Read(beam.io.BigQuerySource(query='SELECT * FROM h1b_split.Employer_Temp ORDER BY employer_name'))
+    query_results = p | 'Read from BigQuery' >> beam.io.Read(beam.io.BigQuerySource(query='SELECT * FROM h1b_split.Employer ORDER BY employer_name limit 100'))
 
     # write PCollection to log file
-    query_results | 'Write to File 1' >> WriteToText(DIR_PATH + 'query_results.txt')
+    query_results | 'Write to File 1' >> WriteToText(DIR_PATH + 'output_query_results.txt')
 
-    # apply ParDo to the Employer records 
+    # apply ParDo to the Employer records
     tuple_pcoll = query_results | 'Transform Employer Name' >> beam.ParDo(TransformEmployerName())
     
-    # write PCollection to a log file
+    # write PCollection to log file
     tuple_pcoll | 'Write to File 2' >> WriteToText(DIR_PATH + 'output_pardo_employer_tuple.txt')
     
     deduped_pcoll = tuple_pcoll | 'Dedup Employer Records' >> beam.GroupByKey()
@@ -105,10 +106,10 @@ with beam.Pipeline(options=opts) as p:
     deduped_pcoll | 'Write to File 3' >> WriteToText(DIR_PATH + 'output_group_by_key.txt')
     
     # apply second ParDo to the PCollection 
-    out_pcoll = deduped_pcoll | 'Create Employer Record' >> beam.ParDo(MakeRecord())
+    out_pcoll = deduped_pcoll | 'Make BigQuery Records' >> beam.ParDo(MakeBigQueryRecord())
     
     # write PCollection to log file
-    out_pcoll | 'Write to File 4' >> WriteToText(DIR_PATH + 'output_pardo_employer_record.txt')
+    out_pcoll | 'Write to File 4' >> WriteToText(DIR_PATH + 'output_bq_records.txt')
     
     qualified_table_name = PROJECT_ID + ':h1b_split.Employer'
     table_schema = 'employer_id:STRING,employer_name:STRING,employer_address:STRING,employer_city:STRING,employer_state:STRING,employer_postal_code:STRING,employer_country:STRING,employer_province:STRING,employer_phone:STRING,h1b_dependent:BOOLEAN,willful_violator:BOOLEAN'
