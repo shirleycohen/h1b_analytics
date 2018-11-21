@@ -80,7 +80,7 @@ DIR_PATH = BUCKET + '/output/' + datetime.datetime.now().strftime('%Y_%m_%d_%H_%
 # run pipeline on Dataflow 
 options = {
     'runner': 'DataflowRunner',
-    'job_name': 'dedup-employer-table',
+    'job_name': 'transform-employer-table',
     'project': PROJECT_ID,
     'temp_location': BUCKET + '/temp',
     'staging_location': BUCKET + '/staging',
