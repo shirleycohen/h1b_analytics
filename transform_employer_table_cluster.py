@@ -91,7 +91,7 @@ opts = beam.pipeline.PipelineOptions(flags=[], **options)
 
 with beam.Pipeline('DataflowRunner', options=opts) as p:
     
-    query_results = p | 'Read from BigQuery' >> beam.io.Read(beam.io.BigQuerySource(query='SELECT * FROM h1b_split.Employer ORDER BY employer_name'))
+    query_results = p | 'Read from BigQuery' >> beam.io.Read(beam.io.BigQuerySource(query='SELECT * FROM h1b_split.Employer_Temp ORDER BY employer_name'))
 
     # write PCollection to log file
     query_results | 'Write to File 1' >> WriteToText(DIR_PATH + 'output_query_results.txt')
