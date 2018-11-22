@@ -114,7 +114,8 @@ with beam.Pipeline('DataflowRunner', options=opts) as p:
     out_pcoll | 'Write to File 4' >> WriteToText(DIR_PATH + 'output_bq_records.txt')
     
     qualified_table_name = PROJECT_ID + ':h1b_split.Employer'
-    table_schema = 'employer_id:STRING,employer_name:STRING,employer_address:STRING,employer_city:STRING,employer_state:STRING,employer_postal_code:STRING,employer_country:STRING,employer_province:STRING,employer_phone:STRING,h1b_dependent:BOOLEAN,willful_violator:BOOLEAN'
+    table_schema = 'employer_id:STRING,employer_name:STRING,employer_address:STRING,employer_city:STRING,employer_state:STRING,employer_postal_code:STRING,' \
+                   'employer_country:STRING,employer_province:STRING,employer_phone:STRING,h1b_dependent:BOOLEAN,willful_violator:BOOLEAN'
     
     out_pcoll | 'Write to BigQuery' >> beam.io.Write(beam.io.BigQuerySink(qualified_table_name, 
                                                      schema=table_schema,  

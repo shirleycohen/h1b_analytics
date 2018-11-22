@@ -88,8 +88,10 @@ opts = beam.pipeline.PipelineOptions(flags=[], **options)
 
 with beam.Pipeline('DirectRunner', options=opts) as p:
     
-    app_query_results = p | 'Read from BigQuery Application' >> beam.io.Read(beam.io.BigQuerySource(query='SELECT * FROM h1b_split.Application_Temp order by employer_name limit 100'))
-    emp_query_results = p | 'Read from BigQuery Employer' >> beam.io.Read(beam.io.BigQuerySource(query='SELECT employer_id, employer_name, employer_city FROM h1b_split.Employer order by employer_name limit 500'))
+    app_query_results = p | 'Read from BigQuery Application' >> beam.io.Read(beam.io.BigQuerySource(query='SELECT * FROM h1b_split.Application_Temp ' \
+                                                                                                    'ORDER BY employer_name limit 100'))
+    emp_query_results = p | 'Read from BigQuery Employer' >> beam.io.Read(beam.io.BigQuerySource(query='SELECT employer_id, employer_name, employer_city '\
+                                                                                                    'FROM h1b_split.Employer order by employer_name limit 500'))
 
     # apply ParDo to the Application records 
     app_tuple_pcoll = app_query_results | 'Transform Application Record' >> beam.ParDo(TransformApplicationRecord())
