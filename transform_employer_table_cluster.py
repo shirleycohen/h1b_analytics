@@ -100,7 +100,7 @@ with beam.Pipeline('DataflowRunner', options=opts) as p:
     tuple_pcoll = query_results | 'Transform Employer Name' >> beam.ParDo(TransformEmployerName())
     
     # write PCollection to log file
-    tuple_pcoll | 'Write to File 2' >> WriteToText('output_pardo_employer_tuple.txt')
+    tuple_pcoll | 'Write to File 2' >> WriteToText(DIR_PATH + 'output_pardo_employer_tuple.txt')
     
     deduped_pcoll = tuple_pcoll | 'Dedup Employer Records' >> beam.GroupByKey()
     
