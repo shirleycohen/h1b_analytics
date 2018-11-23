@@ -121,4 +121,4 @@ with beam.Pipeline('DataflowRunner', options=opts) as p:
                                                      schema=table_schema,  
                                                      create_disposition=beam.io.BigQueryDisposition.CREATE_IF_NEEDED,
                                                      write_disposition=beam.io.BigQueryDisposition.WRITE_TRUNCATE))
-logging.getLogger().setLevel(logging.ERROR)
+
