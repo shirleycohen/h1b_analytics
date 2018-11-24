@@ -23,11 +23,13 @@ class TransformApplicationRecord(beam.DoFn):
     
     employer_name = application_record.get('employer_name')
     employer_city = application_record.get('employer_city').strip()
+    employer_state = application_record.get('employer_state')
     
-    # remove punctuation and suffixes in the employer's name
+    # clean employer name
     employer_name = employer_name.replace('&QUOT;', '')
     employer_name = employer_name.replace('"', '')
     employer_name = employer_name.replace('\'', '')
+    employer_name = employer_name.replace('/', '')
     employer_name = employer_name.replace('.', '')
     employer_name = employer_name.replace(',', '')
     employer_name = employer_name.replace('(', '')
@@ -42,9 +44,26 @@ class TransformApplicationRecord(beam.DoFn):
     employer_name = employer_name.replace(' PC', '')
     employer_name = employer_name.strip()
     
+    # clean employer city
+    employer_city = employer_city.replace(',', '')
+    employer_city = employer_city.strip()
+    employer_city_start = employer_city[0]
+    if employer_city.isdigit():
+        # looks like a zipcode, not a city
+        employer_city = None  
+    elif employer_city_start.isdigit(): 
+        # looks like an address, not a city
+        employer_city = None
+    
+    if employer_city == None and employer_state != None and len(employer_state) > 2:
+        employer_city = employer_state
+    
+    if employer_city == None:
+        return
+    
     # overwrite dictionary entries 
     application_record['employer_name'] = employer_name
-    application_record['employer_city'] = employer_city
+    application_record['employer_city'] = employer_city    
 
     application_key = {'employer_name': employer_name, 'employer_city': employer_city}    
     application_tuple = (application_key, application_record)
@@ -73,6 +92,7 @@ class MakeBigQueryRecord(beam.DoFn):
                 app_record.pop('attorney_id')
             app_record.pop('employer_name')
             app_record.pop('employer_city')
+            app_record.pop('employer_state')
             
             app_results.append(app_record)
 

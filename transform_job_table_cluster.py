@@ -22,12 +22,14 @@ class TransformJobRecord(beam.DoFn):
     job_record = element
     
     employer_name = job_record.get('employer_name')
-    employer_city = job_record.get('employer_city').strip()
+    employer_city = job_record.get('employer_city')
+    employer_state = job_record.get('employer_state')
     
-    # remove punctuation and suffixes in the employer's name
+    # clean employer name
     employer_name = employer_name.replace('&QUOT;', '')
     employer_name = employer_name.replace('"', '')
     employer_name = employer_name.replace('\'', '')
+    employer_name = employer_name.replace('/', '')
     employer_name = employer_name.replace('.', '')
     employer_name = employer_name.replace(',', '')
     employer_name = employer_name.replace('(', '')
@@ -42,12 +44,29 @@ class TransformJobRecord(beam.DoFn):
     employer_name = employer_name.replace(' PC', '')
     employer_name = employer_name.strip()
     
+    # clean employer city
+    employer_city = employer_city.replace(',', '')
+    employer_city = employer_city.strip()
+    employer_city_start = employer_city[0]
+    if employer_city.isdigit():
+        # looks like a zipcode, not a city
+        employer_city = None  
+    elif employer_city_start.isdigit(): 
+        # looks like an address, not a city
+        employer_city = None
+    
+    if employer_city == None and employer_state != None and len(employer_state) > 2:
+        employer_city = employer_state
+    
+    if employer_city == None:
+        return
+        
     # overwrite dictionary entries 
     job_record['employer_name'] = employer_name
     job_record['employer_city'] = employer_city
 
-    application_key = {'employer_name': employer_name, 'employer_city': employer_city}    
-    job_tuple = (application_key, job_record)
+    job_key = {'employer_name': employer_name, 'employer_city': employer_city}    
+    job_tuple = (job_key, job_record)
     
     return [job_tuple]
 
@@ -108,6 +127,7 @@ class MakeBigQueryRecord(beam.DoFn):
                 if soc_name_start.isdigit():
                     soc_code = job_record['soc_name']
                     soc_name = job_record['soc_code']
+                    soc_code = soc_code.replace('.00', '')
                     job_record['soc_code'] = soc_code
                     job_record['soc_name'] = soc_name
             
@@ -135,6 +155,7 @@ class MakeBigQueryRecord(beam.DoFn):
             job_record['employer_id'] = employer_id 
             job_record.pop('employer_name')
             job_record.pop('employer_city')
+            job_record.pop('employer_state')
             
             logging.info('job_record: ' + str(job_record) + '\n===\n')
             job_results.append(job_record)
@@ -148,7 +169,7 @@ DIR_PATH = BUCKET + '/output/' + datetime.datetime.now().strftime('%Y_%m_%d_%H_%
 # run pipeline on Dataflow 
 options = {
     'runner': 'DataflowRunner',
-    'job_name': 'transform-application-table',
+    'job_name': 'transform-job-table',
     'project': PROJECT_ID,
     'temp_location': BUCKET + '/temp',
     'staging_location': BUCKET + '/staging',
