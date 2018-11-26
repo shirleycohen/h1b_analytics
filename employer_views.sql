@@ -6,6 +6,7 @@ JOIN `cs327e-fa2018.sec_of_state.Corporate_Registrations_Cleaned` cr
 ON e.employer_name = cr.corporation_name AND e.employer_state = cr.corporation_state
 ORDER BY e.employer_name, e.employer_state;
   
+  
 CREATE VIEW h1b_split.v_Tech_Employer_Age_Label AS
 SELECT *,
     CASE
