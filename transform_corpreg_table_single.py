@@ -79,7 +79,7 @@ opts = beam.pipeline.PipelineOptions(flags=[], **options)
 with beam.Pipeline('DirectRunner', options=opts) as p:
     
     query_str = 'SELECT corporation_id, corporation_name, corporation_city, corporation_state, registration_date ' \
-                    'FROM `sec_of_state.Corporate_Registrations_Merged`'
+                'FROM `sec_of_state.Corporate_Registrations_Merged` LIMIT 100'
     
     query_results = p | 'Read from BQ CorpReg' >> beam.io.Read(beam.io.BigQuerySource(query=query_str, use_standard_sql=True))
 

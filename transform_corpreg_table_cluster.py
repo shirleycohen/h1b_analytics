@@ -89,7 +89,7 @@ opts = beam.pipeline.PipelineOptions(flags=[], **options)
 with beam.Pipeline('DataflowRunner', options=opts) as p:
     
     query_str = 'SELECT corporation_id, corporation_name, corporation_city, corporation_state, registration_date ' \
-                    'FROM `sec_of_state.Corporate_Registrations_Merged` where corporation_name is not null and corporation_city is not null'
+                'FROM `sec_of_state.Corporate_Registrations_Merged` WHERE corporation_name IS NOT NULL AND corporation_city IS NOT NULL'
     
     query_results = p | 'Read from BQ CorpReg' >> beam.io.Read(beam.io.BigQuerySource(query=query_str, use_standard_sql=True))
 
