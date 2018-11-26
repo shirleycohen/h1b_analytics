@@ -10,6 +10,18 @@ create table sec_of_state.Corporate_Registrations_Merged
 PARTITION BY empty_date
 CLUSTER BY corporation_state;
 
+create table sec_of_state.Corporate_Registrations_Cleaned
+(
+	corporation_id STRING,
+	corporation_name STRING,
+	corporation_city STRING,
+	corporation_state STRING,
+	registration_date DATE,
+	empty_date DATE
+)
+PARTITION BY empty_date
+CLUSTER BY corporation_state;
+
 --AZ
 insert into sec_of_state.Corporate_Registrations_Merged (corporation_id, corporation_name, corporation_city, corporation_state, registration_date)	
 select distinct File_Number, Corporation_Name, First_Address_City, 'AZ', Date_of_Incorporation
@@ -82,3 +94,23 @@ select distinct CAST(dos_id as STRING), current_entity_name, dos_process_city, '
 from sec_of_state.Corporate_Registrations_NY
 where jurisdiction = 'NEW YORK' and dos_process_city is not null and current_entity_name is not null and initial_dos_filing_date is not null
 order by current_entity_name;
+
+--OH
+insert into sec_of_state.Corporate_Registrations_Merged (corporation_id, corporation_name, corporation_city, corporation_state, registration_date)	
+select distinct charter_num, business_name, business_location_name, 'OH', SAFE_CAST(effective_date_time as DATE)
+from sec_of_state.Corporate_Registrations_OH
+where business_state = 'OH'
+order by business_name;
+
+--VA
+insert into sec_of_state.Corporate_Registrations_Merged (corporation_id, corporation_name, corporation_city, corporation_state, registration_date)	
+select distinct corporation_id, corporation_name, prinicipal_city, 'VA', SAFE_CAST(incorporation_date as DATE)
+from sec_of_state.Corporate_Registrations_VA
+where principal_state = 'VA'
+order by corporation_name;
+
+--WA
+insert into sec_of_state.Corporate_Registrations_Merged (corporation_id, corporation_name, corporation_city, corporation_state, registration_date)	
+select distinct CAST(UBI as STRING), BusinessName, RegisteredAgentCity, 'WA', SAFE_CAST(DateOfIncorporation as DATE)
+from sec_of_state.Corporate_Registrations_WA
+where StateOfIncorporation = 'WA';
