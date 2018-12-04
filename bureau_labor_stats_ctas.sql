@@ -35,7 +35,7 @@ select Area, 2018, SocCode,
 (case when Average < 300 then round(((Average*8)*365), 2) 
  when Average > 15000 then round(Average, 2)
  else NULL end)
-from bureau_labor_stats.All_Industries_Wages_2018;
+from bureau_labor_stas.All_Industries_Wages_2018;
 
 
 create table bureau_labor_stats.Geography
