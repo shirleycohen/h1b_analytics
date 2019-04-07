@@ -27,8 +27,9 @@ FROM
  FROM `cs327e-fa2018.h1b_raw.H1B_Applications_2016`
  WHERE employer_name IS NOT NULL AND employer_name != '1' AND employer_city IS NOT NULL
  UNION DISTINCT
- SELECT DISTINCT employer_name, CONCAT(employer_address1, ' ', employer_address2) as employer_address, employer_city, employer_state, 
- employer_postal_code, employer_country, employer_province, employer_phone, h1b_dependent, willful_violator 
+ SELECT DISTINCT employer_name, CONCAT(employer_address1, ' ', employer_address2) as employer_address, 
+ employer_city, employer_state, employer_postal_code, employer_country, employer_province, employer_phone, 
+ h1b_dependent, willful_violator 
  FROM `cs327e-fa2018.h1b_raw.H1B_Applications_2015`
  WHERE employer_name IS NOT NULL AND employer_name != '1' AND employer_city IS NOT NULL
 )
