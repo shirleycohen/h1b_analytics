@@ -89,20 +89,22 @@ opts = beam.pipeline.PipelineOptions(flags=[], **options)
 with beam.Pipeline('DataflowRunner', options=opts) as p:
     
     query_str = 'SELECT corporation_id, corporation_name, corporation_city, corporation_state, registration_date ' \
-                'FROM `sec_of_state.Corporate_Registrations_Merged` WHERE corporation_name IS NOT NULL AND corporation_city IS NOT NULL'
+                'FROM `sec_of_state.Corporate_Registrations_Merged` WHERE corporation_name IS NOT NULL ' \
+                'AND corporation_city IS NOT NULL'
     
-    query_results = p | 'Read from BQ CorpReg' >> beam.io.Read(beam.io.BigQuerySource(query=query_str, use_standard_sql=True))
+    query_results = p | 'Read Corp Reg' >> beam.io.Read(beam.io.BigQuerySource(query=query_str, use_standard_sql=True))
 
     query_results | 'Write to File 1' >> WriteToText(DIR_PATH + 'output_query_results.txt')
  
-    clean_pcoll = query_results | 'Transform CorpReg Record' >> beam.ParDo(TransformCorpRegRecord())
+    clean_pcoll = query_results | 'Transform Corp Reg Record' >> beam.ParDo(TransformCorpRegRecord())
     
     clean_pcoll | 'Write to File 2' >> WriteToText(DIR_PATH + 'output_bq_records.txt')
     
     qualified_table_name = PROJECT_ID + ':sec_of_state.Corporate_Registrations_Cleaned'
-    table_schema = 'corporation_id:STRING,corporation_name:STRING,corporation_city:STRING,corporation_state:STRING,registration_date:DATE'
+    table_schema = 'corporation_id:STRING,corporation_name:STRING,corporation_city:STRING,corporation_state:STRING,' \
+                   'registration_date:DATE'
     
-    clean_pcoll | 'Write to BQ CorpReg' >> beam.io.Write(beam.io.BigQuerySink(qualified_table_name, 
+    clean_pcoll | 'Write Corp Reg' >> beam.io.Write(beam.io.BigQuerySink(qualified_table_name, 
                                                      schema=table_schema,  
                                                      create_disposition=beam.io.BigQueryDisposition.CREATE_NEVER,
                                                      write_disposition=beam.io.BigQueryDisposition.WRITE_TRUNCATE))
