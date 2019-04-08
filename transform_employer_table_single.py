@@ -146,7 +146,8 @@ opts = beam.pipeline.PipelineOptions(flags=[], **options)
 
 with beam.Pipeline('DirectRunner', options=opts) as p:
     
-    query_results = p | 'Read from BigQuery' >> beam.io.Read(beam.io.BigQuerySource(query='SELECT * FROM h1b_split.Employer_Temp LIMIT 100'))
+    query_results = p | 'Read from BigQuery' >> beam.io.Read(beam.io.BigQuerySource(query='SELECT * 
+                                                                                    FROM h1b_split.Employer_Temp LIMIT 100'))
 
     # write PCollection to log file
     query_results | 'Write to File 1' >> WriteToText('output_query_results.txt')
