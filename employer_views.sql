@@ -1,10 +1,13 @@
 CREATE OR REPLACE VIEW h1b_split.v_Tech_Job AS
  SELECT *
- FROM (SELECT * FROM `cs327e-fa2018.h1b_split.Job` WHERE soc_name != 'ELECTRONICS ENGINEERS, EXCEPT COMPUTER')
- WHERE soc_name like '%COMPUTER%' or soc_name like '%SOFTWARE%' or soc_name like '%DEVELOPER%' or soc_name like '%NETWORK%' or soc_name like '%DATABASE%' or soc_name like '%DATA%' or soc_name like '%APPLICATIONS%' or soc_name like '%TECHNOLOGY%' or soc_name like '% TECH %'  or soc_name like '%APPS%' or soc_name like '%PROGRAMMER%' or soc_name like '%SOLUTION ARCHITECT%'
- ORDER BY soc_code;
+ FROM cs327e-fa2018.h1b_split.Job
+ WHERE (soc_name like '%COMPUTER%' or soc_name like '%SOFTWARE%' or soc_name like '%DEVELOPER%' 
+        or soc_name like '%NETWORK%' or soc_name like '%DATABASE%' or soc_name like '%DATA%' 
+        or soc_name like '%APPLICATIONS%' or soc_name like '%TECHNOLOGY%' or soc_name like '% TECH %'  
+        or soc_name like '%APPS%' or soc_name like '%PROGRAMMER%' or soc_name like '%SOLUTION ARCHITECT%') 
+        and soc_name != 'ELECTRONICS ENGINEERS, EXCEPT COMPUTER';
  
-
+ 
 CREATE OR REPLACE VIEW h1b_split.v_Tech_Employer_13_States AS
  SELECT DISTINCT e.* 
  FROM `cs327e-fa2018.h1b_split.Employer` e JOIN `cs327e-fa2018.h1b_split.v_Tech_Job` tj on e.employer_id = tj.employer_id  
