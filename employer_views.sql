@@ -27,12 +27,10 @@ CREATE OR REPLACE VIEW h1b_split.v_Tech_Employer_Age AS
 CREATE OR REPLACE VIEW h1b_split.v_Tech_Employer_Age_Label AS
  SELECT *,
     CASE
-      WHEN employer_age = 0 THEN 'Age 0'
-      WHEN employer_age BETWEEN 1
-    AND 2 THEN 'Ages 1-2'
-      WHEN employer_age BETWEEN 3 AND 12 THEN 'Ages 3-12'
-      WHEN employer_age BETWEEN 13
-    AND 17 THEN 'Ages 13-17'
+      WHEN employer_age BETWEEN 0 AND 2 THEN 'Ages 0-2'
+      WHEN employer_age BETWEEN 3 AND 7 THEN 'Ages 3-7'
+      WHEN employer_age BETWEEN 8 AND 12 THEN 'Ages 8-12'
+      WHEN employer_age BETWEEN 13 AND 17 THEN 'Ages 13-17'
       WHEN employer_age >= 18 THEN 'Ages 18+'
       ELSE NULL
     END AS age_label
