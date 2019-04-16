@@ -277,7 +277,7 @@ with beam.Pipeline('DirectRunner') as p:
     in_pcoll = p | 'Read File' >> ReadFromText('H-1B_Disclosure_Data_FY2019.tsv', skip_header_lines=1)
 
     # apply a ParDo to the PCollection 
-    out_pcoll = in_pcoll | 'Extract Actor and Actress' >> beam.ParDo(SplitFn()).with_outputs(
+    out_pcoll = in_pcoll | 'Processs Extract' >> beam.ParDo(SplitFn()).with_outputs(
                                                           SplitFn.OUTPUT_TAG_APPLICATION,
                                                           SplitFn.OUTPUT_TAG_JOB,
                                                           SplitFn.OUTPUT_TAG_EMPLOYER,
